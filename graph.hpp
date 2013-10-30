@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <queue>
 
 #include "vertex.hpp"
+#include "priority_queue.hpp"
 
 class Graph
 {
@@ -15,5 +15,5 @@ public:
     double calcShortestPath(unsigned int, unsigned int, std::vector<unsigned int>&);
     double calcAvgShortestPath(unsigned int);
     void showEdgeListRepresentation() const;
-    void updateOpenSet(std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare>&, unsigned int);
+    void updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>&, unsigned int);
 };

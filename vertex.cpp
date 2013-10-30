@@ -87,12 +87,27 @@ double OpenSetVertex::getCostOfPathFromSrcVertex() const
     return costOfPathFromSrcVertex;
 }
 
+void OpenSetVertex::setCostOfPathFromSrcVertex(double cost)
+{
+    costOfPathFromSrcVertex = cost;
+}
+
 int OpenSetVertex::getIndexOfPrevVertexOnPath() const
 {
     return indexOfPrevVertexOnPath;
 }
 
-bool OpenSetVertexCompare::operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const
+void OpenSetVertex::setIndexOfPrevVertexOnPath(int index)
+{
+    indexOfPrevVertexOnPath = index;
+}
+
+bool OpenSetVertexCompareIndex::operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const
+{
+    return (lhs.getVertexIndex() == rhs.getVertexIndex());
+}
+
+bool OpenSetVertexCompareCost::operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const
 {
     return (lhs.getCostOfPathFromSrcVertex() < rhs.getCostOfPathFromSrcVertex());
 }

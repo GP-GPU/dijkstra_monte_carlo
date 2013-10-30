@@ -38,11 +38,21 @@ private:
 public:
     OpenSetVertex(unsigned int, double, int);
     unsigned int getVertexIndex() const;
+
     double getCostOfPathFromSrcVertex() const;
+    void setCostOfPathFromSrcVertex(double);
+
     int getIndexOfPrevVertexOnPath() const;
+    void setIndexOfPrevVertexOnPath(int);
 };
 
-class OpenSetVertexCompare
+class OpenSetVertexCompareIndex
+{
+public:
+    bool operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const;
+};
+
+class OpenSetVertexCompareCost
 {
 public:
     bool operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const;

@@ -1,10 +1,10 @@
 #include <vector>
-#include <queue>
 #include <iostream>
 
 #include "graph.hpp"
 #include "random.hpp"
 #include "main.hpp"
+#include "priority_queue.hpp"
 
 unsigned int calcNumEdges(double edgeDensity)
 {
@@ -33,7 +33,7 @@ double calcVectorAvg(const std::vector<double>& v)
     return (sum / v.size());
 }
 
-void Graph::updateOpenSet(std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare>& openSet, unsigned int newestClosedVertexIndex)
+void Graph::updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>& openSet, unsigned int newestClosedVertexIndex)
 {
     Vertex v = vVertices[newestClosedVertexIndex];
 
@@ -53,24 +53,7 @@ void Graph::updateOpenSet(std::priority_queue<OpenSetVertex, std::vector<OpenSet
                 vVertices[i].setCostOfPathFromSrcVertex(costOfPathViaV);
                 vVertices[i].setIndexOfPrevVertexOnPath(newestClosedVertexIndex);
 
-                bool updated = false;
-
-#if 0
-                for (std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare>::iterator j = openSet.begin(); j != openSet.end(); ++j)
-                {
-                    if (j->vertexIndex == i)
-                    {
-                        // Update
-                        updated = true;
-                        break;
-                    }
-                }
-#endif
-
-                if (updated == false)
-                {
-                    openSet.push(OpenSetVertex(i, costOfPathViaV, newestClosedVertexIndex));
-                }
+                openSet.updateIfExistsElseAdd(OpenSetVertex(i, costOfPathViaV, newestClosedVertexIndex));
             }
         }
     }
@@ -120,13 +103,14 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
 
     // The 'openSet' priority queue contains vertices currently under consideration for being
     // added to the closed set.
-    std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare> openSet;
+    PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex> openSet;
 
     // The source vertex can be added to the closed set immediately with zero cost and no previous
     // vertex.
     vVertices[srcVertexIndex].setCostOfPathFromSrcVertex(0);
     vVertices[srcVertexIndex].setIndexOfPrevVertexOnPath(-1);
     vVertices[srcVertexIndex].markClosed();
+    vShortestPath.push_back(srcVertexIndex);
     ++numClosedVertices;
 
     unsigned int newestClosedVertexIndex = srcVertexIndex;
@@ -153,6 +137,7 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
         vVertices[newestClosedVertexIndex].setCostOfPathFromSrcVertex(tmp.getCostOfPathFromSrcVertex());
         vVertices[newestClosedVertexIndex].setIndexOfPrevVertexOnPath(tmp.getIndexOfPrevVertexOnPath());
         vVertices[newestClosedVertexIndex].markClosed();
+        vShortestPath.push_back(newestClosedVertexIndex);
         ++numClosedVertices;
     }
 
@@ -161,6 +146,10 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
 
 double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
 {
+    // Vector containing the shortest path costs from the source vertex to every other vertex.
+    // Costs are added to this vector only if a path actually exists from the source vertex to the
+    // vertex under consideration.
+    // This function can then return the average of the values in this vector.
     std::vector<double> vshortestPathValues(NUM_VERTICES_IN_GRAPH, 0);
 
     for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
