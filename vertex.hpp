@@ -26,6 +26,8 @@ public:
 
     void markClosed();
     bool isClosed() const;
+
+    void clearPathSpecificInfo();
 };
 
 class OpenSetVertex

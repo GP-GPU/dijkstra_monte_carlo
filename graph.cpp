@@ -110,7 +110,7 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
     vVertices[srcVertexIndex].setCostOfPathFromSrcVertex(0);
     vVertices[srcVertexIndex].setIndexOfPrevVertexOnPath(-1);
     vVertices[srcVertexIndex].markClosed();
-    vShortestPath.push_back(srcVertexIndex);
+    //vShortestPath.push_back(srcVertexIndex);
     ++numClosedVertices;
 
     unsigned int newestClosedVertexIndex = srcVertexIndex;
@@ -137,9 +137,21 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
         vVertices[newestClosedVertexIndex].setCostOfPathFromSrcVertex(tmp.getCostOfPathFromSrcVertex());
         vVertices[newestClosedVertexIndex].setIndexOfPrevVertexOnPath(tmp.getIndexOfPrevVertexOnPath());
         vVertices[newestClosedVertexIndex].markClosed();
-        vShortestPath.push_back(newestClosedVertexIndex);
+        //vShortestPath.push_back(newestClosedVertexIndex);
         ++numClosedVertices;
     }
+
+    // Construct the shortest path
+    unsigned int curVertexIndex = dstVertexIndex;
+
+    while (curVertexIndex != srcVertexIndex)
+    {
+        vShortestPath.push_back(curVertexIndex);
+
+        curVertexIndex = vVertices[curVertexIndex].getIndexOfPrevVertexOnPath();
+    }
+
+    vShortestPath.push_back(srcVertexIndex);
 
     return (vVertices[dstVertexIndex].getCostOfPathFromSrcVertex());
 }
@@ -190,5 +202,13 @@ void Graph::showEdgeListRepresentation() const
         ++vertexIndex;
 
         std::cout << std::endl;
+    }
+}
+
+void Graph::clearPathSpecificInfo()
+{
+    for (std::vector<Vertex>::iterator i = vVertices.begin(); i != vVertices.end(); ++i)
+    {
+        i->clearPathSpecificInfo();
     }
 }

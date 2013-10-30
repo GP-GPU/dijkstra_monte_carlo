@@ -22,6 +22,8 @@ int main()
 #else
         g.showEdgeListRepresentation();
 
+        std::vector<unsigned int> vShortestPathIndices;
+
         while (1)
         {
             unsigned int srcVertex, dstVertex;
@@ -31,15 +33,15 @@ int main()
             std::cout << "Enter destination vertex index: ";
             std::cin >> dstVertex;
 
-            std::vector<unsigned int> vShortestPathIndices;
+            vShortestPathIndices.clear();
 
             double shortestPath = g.calcShortestPath(srcVertex, dstVertex, vShortestPathIndices);
 
             if (shortestPath >= 0)
             {
-                std::cout << "Shortest path from v" << srcVertex << " to v" << dstVertex << " is:" << std::endl;
+                std::cout << "Shortest path from v" << srcVertex << " to v" << dstVertex << " is: ";
 
-                for (std::vector<unsigned int>::const_iterator i = vShortestPathIndices.begin(); i != vShortestPathIndices.end(); ++i)
+                for (std::vector<unsigned int>::const_reverse_iterator i = vShortestPathIndices.rbegin(); i != vShortestPathIndices.rend(); ++i)
                 {
                     std::cout << "v" << *i << " -> ";
                 }
@@ -50,6 +52,8 @@ int main()
             {
                 std::cout << "No path found from v" << srcVertex << " to v" << dstVertex << "." << std::endl;
             }
+
+            g.clearPathSpecificInfo();
         }
 #endif
     }

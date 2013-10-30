@@ -16,4 +16,5 @@ public:
     double calcAvgShortestPath(unsigned int);
     void showEdgeListRepresentation() const;
     void updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>&, unsigned int);
+    void clearPathSpecificInfo();
 };

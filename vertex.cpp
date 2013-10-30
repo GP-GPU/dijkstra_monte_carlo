@@ -1,11 +1,12 @@
 #include <vector>
 #include <iostream>
+#include <limits>
 
 #include "vertex.hpp"
 #include "main.hpp"
 
 Vertex::Vertex() : vEdgeCosts(NUM_VERTICES_IN_GRAPH, -1),
-                   costOfPathFromSrcVertex(65535),
+                   costOfPathFromSrcVertex(std::numeric_limits<double>::max()),
                    indexOfPrevVertexOnPath(-1),
                    closed(false)
 {
@@ -69,6 +70,13 @@ void Vertex::markClosed()
 bool Vertex::isClosed() const
 {
     return closed;
+}
+
+void Vertex::clearPathSpecificInfo()
+{
+    costOfPathFromSrcVertex = std::numeric_limits<double>::max();
+    indexOfPrevVertexOnPath = -1;
+    closed = false;
 }
 
 OpenSetVertex::OpenSetVertex(unsigned int vI, double c, int pVI) : vertexIndex(vI),
