@@ -14,15 +14,13 @@ int main()
         // Generate a random graph.
         Graph g(EDGE_DENSITY, MIN_EDGE_COST, MAX_EDGE_COST);
 
-#if 0
+#if 1
         // Compute the average shortest path from vertex 0 to every other vertex
         double avgShortestPath = g.calcAvgShortestPath(0);
 
         std::cout << "For graph # " << i + 1 << ", the average shortest path from v0 = " << avgShortestPath << std::endl;
 #else
         g.showEdgeListRepresentation();
-
-        std::vector<unsigned int> vShortestPathIndices;
 
         while (1)
         {
@@ -33,7 +31,7 @@ int main()
             std::cout << "Enter destination vertex index: ";
             std::cin >> dstVertex;
 
-            vShortestPathIndices.clear();
+            std::vector<unsigned int> vShortestPathIndices;
 
             double shortestPath = g.calcShortestPath(srcVertex, dstVertex, vShortestPathIndices);
 
@@ -50,10 +48,11 @@ int main()
             }
             else
             {
-                std::cout << "No path found from v" << srcVertex << " to v" << dstVertex << "." << std::endl;
+                std::cout << "No path exists from v" << srcVertex << " to v" << dstVertex << "." << std::endl;
             }
 
             g.clearPathSpecificInfo();
+            vShortestPathIndices.clear();
         }
 #endif
     }

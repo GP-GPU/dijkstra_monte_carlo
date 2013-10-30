@@ -128,6 +128,13 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
         // or open sets).
         updateOpenSet(openSet, newestClosedVertexIndex);
 
+        // If the open set is empty at this point, then it means that all paths from the source
+        // vertex have been analysed, and none of them reach the destination vertex.
+        if (openSet.isEmpty())
+        {
+            return -1;
+        }
+
         // Select the vertex in the open set that has the lowest cost from the source vertex.
         OpenSetVertex tmp = openSet.top();
         newestClosedVertexIndex = tmp.getVertexIndex();
@@ -184,6 +191,11 @@ double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
         {
             vshortestPathValues.push_back(shortestPath);
         }
+
+        // Reset path specific information so that we start off from a clean slate for the next
+        // source-destination pair.
+        clearPathSpecificInfo();
+        vShortestPathIndices.clear();
     }
 
     return (calcVectorAvg(vshortestPathValues));

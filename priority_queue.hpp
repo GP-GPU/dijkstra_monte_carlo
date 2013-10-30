@@ -44,4 +44,9 @@ public:
 
         push(element);
     }
+
+    bool isEmpty() const
+    {
+        return (v.size() == 0);
+    }
 };
