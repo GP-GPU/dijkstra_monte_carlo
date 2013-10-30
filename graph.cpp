@@ -1,4 +1,5 @@
 #include <vector>
+#include <queue>
 #include <iostream>
 
 #include "graph.hpp"
@@ -32,6 +33,49 @@ double calcVectorAvg(const std::vector<double>& v)
     return (sum / v.size());
 }
 
+void Graph::updateOpenSet(std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare>& openSet, unsigned int newestClosedVertexIndex)
+{
+    Vertex v = vVertices[newestClosedVertexIndex];
+
+    for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
+    {
+        if (vVertices[i].isClosed())
+        {
+            continue;
+        }
+
+        if (v.edgeExists(i))
+        {
+            double costOfPathViaV = v.getCostOfPathFromSrcVertex() + v.getEdgeCost(i);
+
+            if (costOfPathViaV < vVertices[i].getCostOfPathFromSrcVertex())
+            {
+                vVertices[i].setCostOfPathFromSrcVertex(costOfPathViaV);
+                vVertices[i].setIndexOfPrevVertexOnPath(newestClosedVertexIndex);
+
+                bool updated = false;
+
+#if 0
+                for (std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare>::iterator j = openSet.begin(); j != openSet.end(); ++j)
+                {
+                    if (j->vertexIndex == i)
+                    {
+                        // Update
+                        updated = true;
+                        break;
+                    }
+                }
+#endif
+
+                if (updated == false)
+                {
+                    openSet.push(OpenSetVertex(i, costOfPathViaV, newestClosedVertexIndex));
+                }
+            }
+        }
+    }
+}
+
 Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVertices(NUM_VERTICES_IN_GRAPH)
 {
     // The edge density must be between 0 & 1. Set it to a default of 0.5 if an incorrect value is
@@ -54,7 +98,7 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
         getRandomVertices(NUM_VERTICES_IN_GRAPH, vertex1, vertex2);
 //std::cout << "got random vertices - v" << vertex1 << " & v" << vertex2 << std::endl;
 
-        while (vVertices[vertex1].edgeAlreadyExists(vertex2))
+        while (vVertices[vertex1].edgeExists(vertex2))
         {
 //std::cout << "edge v" << vertex1 << "-->v" << vertex2 << " already exists :(" << std::endl;
             getRandomVertices(NUM_VERTICES_IN_GRAPH, vertex1, vertex2);
@@ -70,13 +114,54 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
     }
 }
 
-double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVertexIndex) const
+double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVertexIndex, std::vector<unsigned int>& vShortestPath)
 {
+    unsigned int numClosedVertices = 0;
+
+    // The 'openSet' priority queue contains vertices currently under consideration for being
+    // added to the closed set.
+    std::priority_queue<OpenSetVertex, std::vector<OpenSetVertex>, OpenSetVertexCompare> openSet;
+
+    // The source vertex can be added to the closed set immediately with zero cost and no previous
+    // vertex.
+    vVertices[srcVertexIndex].setCostOfPathFromSrcVertex(0);
+    vVertices[srcVertexIndex].setIndexOfPrevVertexOnPath(-1);
+    vVertices[srcVertexIndex].markClosed();
+    ++numClosedVertices;
+
+    unsigned int newestClosedVertexIndex = srcVertexIndex;
+
+    while (numClosedVertices != NUM_VERTICES_IN_GRAPH)
+    {
+        // Break out if the destination vertex has been reached.
+        if (newestClosedVertexIndex == dstVertexIndex)
+        {
+            break;
+        }
+
+        // Update the open set with vertices that can be reached from the vertex most recently
+        // added to the closed set (provided that these vertices are not already in the closed
+        // or open sets).
+        updateOpenSet(openSet, newestClosedVertexIndex);
+
+        // Select the vertex in the open set that has the lowest cost from the source vertex.
+        OpenSetVertex tmp = openSet.top();
+        newestClosedVertexIndex = tmp.getVertexIndex();
+        openSet.pop();
+
+        // Add this vertex to the closed set.
+        vVertices[newestClosedVertexIndex].setCostOfPathFromSrcVertex(tmp.getCostOfPathFromSrcVertex());
+        vVertices[newestClosedVertexIndex].setIndexOfPrevVertexOnPath(tmp.getIndexOfPrevVertexOnPath());
+        vVertices[newestClosedVertexIndex].markClosed();
+        ++numClosedVertices;
+    }
+
+    return (vVertices[dstVertexIndex].getCostOfPathFromSrcVertex());
 }
 
-double Graph::calcAvgShortestPath(unsigned int srcVertexIndex) const
+double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
 {
-    std::vector<double> shortestPathsVector;
+    std::vector<double> vshortestPathValues(NUM_VERTICES_IN_GRAPH, 0);
 
     for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
     {
@@ -86,16 +171,21 @@ double Graph::calcAvgShortestPath(unsigned int srcVertexIndex) const
             continue;
         }
 
-        double shortestPath = calcShortestPath(srcVertexIndex, i);
+        // The 'vShortestPath' vector will contain the indices of the vertices that lie on the
+        // shortest path from the source vertex to the destination vertex. So this vector will
+        // have 'srcVertexIndex' as the first element and 'i' as the last element.
+        std::vector<unsigned int> vShortestPathIndices;
+
+        double shortestPath = calcShortestPath(srcVertexIndex, i, vShortestPathIndices);
 
         // Add to the shortest paths vector only if a path actually exists.
         if (shortestPath >= 0)
         {
-            shortestPathsVector.push_back(shortestPath);
+            vshortestPathValues.push_back(shortestPath);
         }
     }
 
-    return (calcVectorAvg(shortestPathsVector));
+    return (calcVectorAvg(vshortestPathValues));
 }
 
 void Graph::showEdgeListRepresentation() const

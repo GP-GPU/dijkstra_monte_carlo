@@ -4,8 +4,16 @@
 #include "vertex.hpp"
 #include "main.hpp"
 
-Vertex::Vertex() : vEdgeCosts(NUM_VERTICES_IN_GRAPH, -1)
+Vertex::Vertex() : vEdgeCosts(NUM_VERTICES_IN_GRAPH, -1),
+                   costOfPathFromSrcVertex(65535),
+                   indexOfPrevVertexOnPath(-1),
+                   closed(false)
 {
+}
+
+double Vertex::getEdgeCost(unsigned int remoteVertex) const
+{
+    return vEdgeCosts[remoteVertex];
 }
 
 void Vertex::setEdgeCost(unsigned int remoteVertex, double weight)
@@ -17,7 +25,7 @@ void Vertex::showEdgeCosts() const
 {
     unsigned int remoteVertexIndex = 0;
 
-    for (std::vector<int>::const_iterator i = vEdgeCosts.begin(); i != vEdgeCosts.end(); ++i)
+    for (std::vector<double>::const_iterator i = vEdgeCosts.begin(); i != vEdgeCosts.end(); ++i)
     {
         if (*i >= 0)
         {
@@ -28,7 +36,63 @@ void Vertex::showEdgeCosts() const
     }
 }
 
-bool Vertex::edgeAlreadyExists(unsigned int remoteVertex) const
+bool Vertex::edgeExists(unsigned int remoteVertex) const
 {
     return (vEdgeCosts[remoteVertex] >= 0);
+}
+
+double Vertex::getCostOfPathFromSrcVertex() const
+{
+    return costOfPathFromSrcVertex;
+}
+
+void Vertex::setCostOfPathFromSrcVertex(double cost)
+{
+    costOfPathFromSrcVertex = cost;
+}
+
+int Vertex::getIndexOfPrevVertexOnPath() const
+{
+    return indexOfPrevVertexOnPath;
+}
+
+void Vertex::setIndexOfPrevVertexOnPath(int index)
+{
+    indexOfPrevVertexOnPath = index;
+}
+
+void Vertex::markClosed()
+{
+    closed = true;
+}
+
+bool Vertex::isClosed() const
+{
+    return closed;
+}
+
+OpenSetVertex::OpenSetVertex(unsigned int vI, double c, int pVI) : vertexIndex(vI),
+                                                                   costOfPathFromSrcVertex(c),
+                                                                   indexOfPrevVertexOnPath(pVI)
+{
+}
+
+unsigned int OpenSetVertex::getVertexIndex() const
+{
+    return vertexIndex;
+}
+
+double OpenSetVertex::getCostOfPathFromSrcVertex() const
+{
+    return costOfPathFromSrcVertex;
+}
+
+int OpenSetVertex::getIndexOfPrevVertexOnPath() const
+{
+    return indexOfPrevVertexOnPath;
+}
+
+bool OpenSetVertexCompare::operator()(const OpenSetVertex& lhs, const OpenSetVertex& rhs) const
+{
+    return (lhs.getCostOfPathFromSrcVertex() < rhs.getCostOfPathFromSrcVertex());
 }

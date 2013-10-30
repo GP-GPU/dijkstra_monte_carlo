@@ -1,6 +1,5 @@
 // Assuming:
 //   - undirected graph with equal cost in both directions
-//   - no self-loops
 //   - non-negative costs
 
 #include <iostream>
@@ -18,11 +17,11 @@ int main()
         // Compute the average shortest path from vertex 0 to every other vertex
         double avgShortestPath = g.calcAvgShortestPath(0);
 
-        std::cout << "Graph # " << i + 1 << std::endl;
+        std::cout << "For graph # " << i + 1 << ", the average shortest path from v0 = " << avgShortestPath << std::endl;
 
-        g.showEdgeListRepresentation();
+        //g.showEdgeListRepresentation();
 
-        std::cout << std::endl << std::endl;
+        std::cout << std::endl;
     }
 
     // Return zero to the operating system to indicate successful program completion.
