@@ -25,11 +25,11 @@ void getRandomVertices(unsigned int numVertices, unsigned int& vertex1, unsigned
     }
 }
 
-void getRandomEdgeWeight(double minEdgeCost, double maxEdgeCost, double& weight)
+void getRandomEdgeCost(double minEdgeCost, double maxEdgeCost, double& cost)
 {
     //boost::random::mt19937 rng;
 
     boost::random::uniform_int_distribution<> dist(minEdgeCost, maxEdgeCost);
 
-    weight = dist(rng);
+    cost = dist(rng);
 }

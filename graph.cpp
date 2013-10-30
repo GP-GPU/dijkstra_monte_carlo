@@ -76,24 +76,20 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
     for (unsigned int i = 0; i < numEdges; ++i)
     {
         unsigned int vertex1, vertex2;
-        double weight;
+        double cost;
 
         getRandomVertices(NUM_VERTICES_IN_GRAPH, vertex1, vertex2);
-//std::cout << "got random vertices - v" << vertex1 << " & v" << vertex2 << std::endl;
 
         while (vVertices[vertex1].edgeExists(vertex2))
         {
-//std::cout << "edge v" << vertex1 << "-->v" << vertex2 << " already exists :(" << std::endl;
             getRandomVertices(NUM_VERTICES_IN_GRAPH, vertex1, vertex2);
-//std::cout << "got new random vertices - v" << vertex1 << " & v" << vertex2 << std::endl;
         }
 
-        getRandomEdgeWeight(minEdgeCost, maxEdgeCost, weight);
-//std::cout << "got random edge weight " << weight << std::endl;
+        getRandomEdgeCost(minEdgeCost, maxEdgeCost, cost);
 
         // Set the edge costs vectors in the two vertices appropriately.
-        vVertices[vertex1].setEdgeCost(vertex2, weight);
-        vVertices[vertex2].setEdgeCost(vertex1, weight);
+        vVertices[vertex1].setEdgeCost(vertex2, cost);
+        vVertices[vertex2].setEdgeCost(vertex1, cost);
     }
 }
 
@@ -169,7 +165,7 @@ double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
     // Costs are added to this vector only if a path actually exists from the source vertex to the
     // vertex under consideration.
     // This function can then return the average of the values in this vector.
-    std::vector<double> vshortestPathValues(NUM_VERTICES_IN_GRAPH, 0);
+    std::vector<double> vshortestPathValues;
 
     for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
     {
