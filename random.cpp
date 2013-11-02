@@ -4,12 +4,14 @@
 #include "random.hpp"
 #include "main.hpp"
 
+// Global seed set to the same value every time the program executes. Should be randomised for
+// better random number generation.
 boost::random::mt19937 rng;
 
+// Function to get two random vertices. The two vertices may be same only if the graph can have
+// self loops.
 void getRandomVertices(unsigned int numVertices, unsigned int& vertex1, unsigned int& vertex2)
 {
-    //boost::random::mt19937 rng;
-
     boost::random::uniform_int_distribution<> dist(0, (numVertices - 1));
 
     vertex1 = dist(rng);
@@ -25,10 +27,9 @@ void getRandomVertices(unsigned int numVertices, unsigned int& vertex1, unsigned
     }
 }
 
+// Function to generate a random edge cost within the given bounds.
 void getRandomEdgeCost(double minEdgeCost, double maxEdgeCost, double& cost)
 {
-    //boost::random::mt19937 rng;
-
     boost::random::uniform_int_distribution<> dist(minEdgeCost, maxEdgeCost);
 
     cost = dist(rng);

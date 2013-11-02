@@ -6,6 +6,7 @@
 #include "main.hpp"
 #include "priority_queue.hpp"
 
+// Function to calculate the actual number of edges using the given edge density.
 unsigned int calcNumEdges(double edgeDensity)
 {
     // For a graph of N vertices, the maximum number of edges (i.e. for a complete graph)
@@ -21,18 +22,11 @@ unsigned int calcNumEdges(double edgeDensity)
     return (maxNumEdges * edgeDensity);
 }
 
-double calcVectorAvg(const std::vector<double>& v)
-{
-    double sum = 0;
-
-    for (std::vector<double>::const_iterator i = v.begin(); i != v.end(); ++i)
-    {
-        sum += *i;
-    }
-
-    return (sum / v.size());
-}
-
+// Function to update the current open set based on the vertex that was newly added to the closed set
+// A new vertex will be added to the open set if it can be reached via the vertex that was newly
+// added to the closed set, provided that it is not already in the closed or open sets. If it is in
+// the open set, we merely check whether there is an improvement in cost if getting there via the
+// vertex that was newly added to the closed set.
 void Graph::updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>& openSet, unsigned int newestClosedVertexIndex)
 {
     Vertex v = vVertices[newestClosedVertexIndex];
@@ -59,6 +53,7 @@ void Graph::updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost,
     }
 }
 
+// Constructor of the Graph class. Generates a random graph with the given input parameters.
 Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVertices(NUM_VERTICES_IN_GRAPH)
 {
     // The edge density must be between 0 & 1. Set it to a default of 0.5 if an incorrect value is
@@ -69,10 +64,10 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
         edgeDensity = 0.5;
     }
 
-    // Get the actual number of edges from the edge density
+    // Get the actual number of edges from the edge density.
     unsigned int numEdges = calcNumEdges(edgeDensity);
 
-    // Randomly generate the edges
+    // Randomly generate the edges.
     for (unsigned int i = 0; i < numEdges; ++i)
     {
         unsigned int vertex1, vertex2;
@@ -93,6 +88,9 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
     }
 }
 
+// Function to calculate the shortest path from the given source vertex to the given destination
+// vertex using Dijkstra's shortest path algorithm. The shortest path so calculated is stored in
+// the given vector.
 double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVertexIndex, std::vector<unsigned int>& vShortestPath)
 {
     unsigned int numClosedVertices = 0;
@@ -106,7 +104,6 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
     vVertices[srcVertexIndex].setCostOfPathFromSrcVertex(0);
     vVertices[srcVertexIndex].setIndexOfPrevVertexOnPath(-1);
     vVertices[srcVertexIndex].markClosed();
-    //vShortestPath.push_back(srcVertexIndex);
     ++numClosedVertices;
 
     unsigned int newestClosedVertexIndex = srcVertexIndex;
@@ -120,8 +117,7 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
         }
 
         // Update the open set with vertices that can be reached from the vertex most recently
-        // added to the closed set (provided that these vertices are not already in the closed
-        // or open sets).
+        // added to the closed set.
         updateOpenSet(openSet, newestClosedVertexIndex);
 
         // If the open set is empty at this point, then it means that all paths from the source
@@ -140,11 +136,11 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
         vVertices[newestClosedVertexIndex].setCostOfPathFromSrcVertex(tmp.getCostOfPathFromSrcVertex());
         vVertices[newestClosedVertexIndex].setIndexOfPrevVertexOnPath(tmp.getIndexOfPrevVertexOnPath());
         vVertices[newestClosedVertexIndex].markClosed();
-        //vShortestPath.push_back(newestClosedVertexIndex);
         ++numClosedVertices;
     }
 
-    // Construct the shortest path
+    // Now that we have successfully found the shortest path from the source vertex to the
+    // destination vertex, we can backtrack to construct the shortest path.
     unsigned int curVertexIndex = dstVertexIndex;
 
     while (curVertexIndex != srcVertexIndex)
@@ -159,6 +155,8 @@ double Graph::calcShortestPath(unsigned int srcVertexIndex, unsigned int dstVert
     return (vVertices[dstVertexIndex].getCostOfPathFromSrcVertex());
 }
 
+// Function to calculate the average shortest path from the given source vertex to all other
+// vertices in the graph.
 double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
 {
     // Vector containing the shortest path costs from the source vertex to every other vertex.
@@ -175,8 +173,8 @@ double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
             continue;
         }
 
-        // The 'vShortestPath' vector will contain the indices of the vertices that lie on the
-        // shortest path from the source vertex to the destination vertex. So this vector will
+        // The 'vShortestPathIndices' vector will contain the indices of the vertices that lie on
+        // the shortest path from the source vertex to the destination vertex. So this vector will
         // have 'srcVertexIndex' as the first element and 'i' as the last element.
         std::vector<unsigned int> vShortestPathIndices;
 
@@ -197,6 +195,8 @@ double Graph::calcAvgShortestPath(unsigned int srcVertexIndex)
     return (calcVectorAvg(vshortestPathValues));
 }
 
+// Function to show the edge-list representation of the graph. This can be used to sketch the
+// graph on paper if needed.
 void Graph::showEdgeListRepresentation() const
 {
     unsigned int vertexIndex = 0;
@@ -213,6 +213,8 @@ void Graph::showEdgeListRepresentation() const
     }
 }
 
+// Function to reset all path specific information stored in a Graph object. Needed for any new
+// path calculation.
 void Graph::clearPathSpecificInfo()
 {
     for (std::vector<Vertex>::iterator i = vVertices.begin(); i != vVertices.end(); ++i)
