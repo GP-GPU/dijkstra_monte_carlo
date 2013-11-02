@@ -1,3 +1,5 @@
+// Implementation of methods of the Graph class
+
 #include <vector>
 #include <iostream>
 
@@ -20,37 +22,6 @@ unsigned int calcNumEdges(double edgeDensity)
     }
 
     return (maxNumEdges * edgeDensity);
-}
-
-// Function to update the current open set based on the vertex that was newly added to the closed set
-// A new vertex will be added to the open set if it can be reached via the vertex that was newly
-// added to the closed set, provided that it is not already in the closed or open sets. If it is in
-// the open set, we merely check whether there is an improvement in cost if getting there via the
-// vertex that was newly added to the closed set.
-void Graph::updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>& openSet, unsigned int newestClosedVertexIndex)
-{
-    Vertex v = vVertices[newestClosedVertexIndex];
-
-    for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
-    {
-        if (vVertices[i].isClosed())
-        {
-            continue;
-        }
-
-        if (v.edgeExists(i))
-        {
-            double costOfPathViaV = v.getCostOfPathFromSrcVertex() + v.getEdgeCost(i);
-
-            if (costOfPathViaV < vVertices[i].getCostOfPathFromSrcVertex())
-            {
-                vVertices[i].setCostOfPathFromSrcVertex(costOfPathViaV);
-                vVertices[i].setIndexOfPrevVertexOnPath(newestClosedVertexIndex);
-
-                openSet.updateIfExistsElseAdd(OpenSetVertex(i, costOfPathViaV, newestClosedVertexIndex));
-            }
-        }
-    }
 }
 
 // Constructor of the Graph class. Generates a random graph with the given input parameters.
@@ -85,6 +56,37 @@ Graph::Graph(double edgeDensity, double minEdgeCost, double maxEdgeCost) : vVert
         // Set the edge costs vectors in the two vertices appropriately.
         vVertices[vertex1].setEdgeCost(vertex2, cost);
         vVertices[vertex2].setEdgeCost(vertex1, cost);
+    }
+}
+
+// Function to update the current open set based on the vertex that was newly added to the closed set
+// A new vertex will be added to the open set if it can be reached via the vertex that was newly
+// added to the closed set, provided that it is not already in the closed or open sets. If it is in
+// the open set, we merely check whether there is an improvement in cost if getting there via the
+// vertex that was newly added to the closed set.
+void Graph::updateOpenSet(PriorityQueue<OpenSetVertex, OpenSetVertexCompareCost, OpenSetVertexCompareIndex>& openSet, unsigned int newestClosedVertexIndex)
+{
+    Vertex v = vVertices[newestClosedVertexIndex];
+
+    for (unsigned int i = 0; i < NUM_VERTICES_IN_GRAPH; ++i)
+    {
+        if (vVertices[i].isClosed())
+        {
+            continue;
+        }
+
+        if (v.edgeExists(i))
+        {
+            double costOfPathViaV = v.getCostOfPathFromSrcVertex() + v.getEdgeCost(i);
+
+            if (costOfPathViaV < vVertices[i].getCostOfPathFromSrcVertex())
+            {
+                vVertices[i].setCostOfPathFromSrcVertex(costOfPathViaV);
+                vVertices[i].setIndexOfPrevVertexOnPath(newestClosedVertexIndex);
+
+                openSet.updateIfExistsElseAdd(OpenSetVertex(i, costOfPathViaV, newestClosedVertexIndex));
+            }
+        }
     }
 }
 

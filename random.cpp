@@ -1,3 +1,5 @@
+// Helper functions to get random edges and random costs
+
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
@@ -8,8 +10,8 @@
 // better random number generation.
 boost::random::mt19937 rng;
 
-// Function to get two random vertices. The two vertices may be same only if the graph can have
-// self loops.
+// Function to get two random vertices (essentially a random edge). The two vertices may be same
+// only if the graph can have self loops.
 void getRandomVertices(unsigned int numVertices, unsigned int& vertex1, unsigned int& vertex2)
 {
     boost::random::uniform_int_distribution<> dist(0, (numVertices - 1));

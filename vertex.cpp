@@ -1,3 +1,5 @@
+// Implementation of methods of the Vertex & OpenSetVertex classes
+
 #include <vector>
 #include <iostream>
 #include <limits>
